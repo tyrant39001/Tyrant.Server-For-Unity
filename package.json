@@ -1,0 +1,15 @@
+{
+  "name": "com.tyrant.server",
+  "displayName": "Tyrant.Server",
+  "version": "1.0.0",
+  "unity": "2019.1",
+  "description": "Tyrant\u670d\u52a1\u5668\u6846\u67b6Unity\u5ba2\u6237\u7aef\u7ec4\u4ef6",
+  "dependencies": {
+    "com.tyrant.client": "",
+    "com.unity.nuget.newtonsoft-json": ""
+  },
+  "keywords": [
+    "Tyrant",
+    "Server"
+  ]
+}

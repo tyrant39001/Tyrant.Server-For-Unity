@@ -1,0 +1,1354 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>Tyrant.Server</name>
+    </assembly>
+    <members>
+        <member name="M:Tyrant.Server.ServerBase.AutoMigrateDbContext(System.Type,Tyrant.Server.DbConfig)">
+            <summary>
+            自动迁移数据库。
+            </summary>
+            <param name="dbContextType">继承自<see cref="T:Tyrant.Server.TyrantDbContext"/>的具有无参构造函数的数据库上下文类型</param>
+            <param name="config">数据库配置对象</param>
+        </member>
+        <member name="M:Tyrant.Server.ServerBase.SetMigrateDbContextLastModel(System.Type)">
+            <summary>
+            最后一次的迁移模型与当前数据库模型对不上调用（可能是迁移过程中异常了，在回滚过程中再次发生异常）
+            </summary>
+            <param name="type"></param>
+            <exception cref="T:System.ArgumentNullException"></exception>
+        </member>
+        <member name="M:Tyrant.Server.ServerBase.GetServerInfos(Tyrant.GameCore.Net.ERouteTarget)">
+            <summary>
+            指定服务器类型获取所有对该类型服务器进程的连接信息
+            </summary>
+            <param name="target"></param>
+            <returns></returns>
+        </member>
+        <member name="P:Tyrant.Server.ServerBase.MasterConnect">
+            <summary>
+            获取或设置本服务器组的Master连接
+            </summary>
+        </member>
+        <member name="P:Tyrant.Server.ServerBase.LoginConnect">
+            <summary>
+            获取或设置登录服务器进程组的Master连接
+            </summary>
+        </member>
+        <member name="M:Tyrant.Server.ServerBase.OnErrorBeforeConnectToMonitor(System.String[])">
+            <summary>
+            连接到监视器前如果发生错误则被调用。默认行文将错误内容写入本地文本日志，继承者可从写此方法以改变这一行为
+            </summary>
+            <param name="contents"></param>
+        </member>
+        <member name="P:Tyrant.Server.ServerBase.ServerType">
+            <summary>
+            服务器类型，内置服务器类型对应枚举<see cref="T:Tyrant.GameCore.Net.ERouteTarget"/>
+            </summary>
+        </member>
+        <member name="M:Tyrant.Server.ServerBase.Start(System.String)">
+            <summary>
+            启动本服务器实例。数据库配置文件的文件名为参数<c>configFileName</c>的路径加DbConfig.json。性能配置文件的文件名为参数<c>configFileName</c>的路径加PerformanceConfig.json
+            </summary>
+            <param name="configFileName">配置文件名称含扩展名。可以是绝对路径，也可是相对工作目录的相对路径</param>
+        </member>
+        <member name="M:Tyrant.Server.ServerBase.OnMonitorClosed">
+            <summary>
+            监视器关闭时被调用
+            </summary>
+            <returns>true表示强制结束当前进程, false表示调用<see cref="M:Tyrant.Server.ServerBase.Stop"/></returns>
+        </member>
+        <member name="M:Tyrant.Server.ServerBase.Stop">
+            <summary>
+            断开所有网络连接并停止所有网络服务及运行逻辑
+            </summary>
+        </member>
+        <member name="M:Tyrant.Server.ServerBase.OnGetProcessTitle">
+            <summary>
+            获取此进程的标题，在监视器中显示
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="P:Tyrant.Server.ServerBase.LogicThreadDispatcher">
+            <summary>
+            逻辑线程分发器，可将指定委托推送到逻辑线程上执行
+            </summary>
+        </member>
+        <!-- Badly formed XML comment ignored for member "M:Tyrant.Server.ServerBase.OnGetDatabaseAdapterAction" -->
+        <member name="P:Tyrant.Server.ServerBase.PositiveConnectList">
+            <summary>
+            获取主动连接其他哪些进程，Master不需要包含在内
+            </summary>
+        </member>
+        <member name="P:Tyrant.Server.ServerBase.LocalPortListened">
+            <summary>
+            获取监听的本地端口
+            </summary>
+        </member>
+        <member name="M:Tyrant.Server.ServerBase.OnStart">
+            <summary>
+            在逻辑线程上被调用，此时已读取服务器配置（属性<see cref="P:Tyrant.Server.ServerBase.Config"/>的返回值有效）并加载了策划数据，已完成服务器进程之间的相互连接。此时客户端不能连接到服务器，此方法执行过后才可以。继承者重写此方法可实现必须在客户端进入服务器之前就要完成的初始化操作。
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:Tyrant.Server.ServerBase.OnExecuteRPCAction(Tyrant.GameCore.Net.RPCParameter,System.Object,System.Action,Tyrant.GameCore.Net.RPCExecManager)">
+            <summary>
+            当执行RPC时被调用。继承者可重写此方法在需要的线程或时机等执行RPC。默认为在逻辑线程上执行
+            </summary>
+            <param name="arg">RPC参数</param>
+            <param name="host">RPC方法调用者</param>
+            <param name="rpcAction">RPC执行过程</param>
+            <param name="rpcExecManager">RPC执行管理器</param>
+        </member>
+        <member name="M:Tyrant.Server.ServerBase.OnAllServersStartFinished">
+            <summary>
+            所有服务器进程启动完成后被调用。对于MasterServer,GateServer，此时客户端已经可以连接到此进程。
+            </summary>
+        </member>
+        <member name="M:Tyrant.Server.ServerBase.MakeLambdaExpression(System.Type,System.Reflection.PropertyInfo)">
+            <summary>
+            返回
+            </summary>
+            <param name="classType"></param>
+            <param name="proInfo"></param>
+            <returns></returns>
+        </member>
+        <member name="T:Tyrant.Server.TyrantDbContext">
+            <summary>
+            可自动迁移的数据库上下文
+            </summary>
+        </member>
+        <member name="P:Tyrant.Server.TyrantDbContext.HasConfiguring">
+            <summary>
+            是否使用数据库
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:Tyrant.Server.TyrantDbContext.OnConfiguring(Microsoft.EntityFrameworkCore.DbContextOptionsBuilder)">
+            <summary>
+            继承者重写此方法时不要忘记调用基类同名方法`
+            </summary>
+            <param name="optionsBuilder"></param>
+        </member>
+        <member name="M:Tyrant.Server.TyrantDbContext.OnDbCustomConfig(System.Data.Common.DbConnectionStringBuilder,Microsoft.EntityFrameworkCore.DbContextOptionsBuilder,System.Boolean)">
+            <summary>
+            继承者重写此方法可自主配置数据库连接字符串以及其他配置
+            </summary>
+            <param name="dbConnectionStringBuilder">可将此参数强转为对应数据库的子类型，例如MySql可强转为<c>MySqlConnector.MySqlConnectionStringBuilder</c></param>
+            <param name="optionsBuilder"></param>
+            <param name="isMigration">true表示用于数据库迁移。false表示用于业务逻辑</param>
+        </member>
+        <!-- Badly formed XML comment ignored for member "M:Tyrant.Server.TyrantDbContext.OnDbUsing(Microsoft.EntityFrameworkCore.Infrastructure.IRelationalDbContextOptionsBuilderInfrastructure)" -->
+        <member name="P:Tyrant.Server.Net.H2W_NotifyLeaveMapParam.RoleId">
+            <summary>
+            离开地图的角色,
+            </summary>
+        </member>
+        <member name="P:Tyrant.Server.Net.TcpConnectHP.RemoteIp">
+            <summary>
+            获取当前连接的远端IP地址
+            </summary>
+        </member>
+        <member name="P:Tyrant.Server.Net.TcpConnectHP.RemotePort">
+            <summary>
+            获取当前连接的远端端口号
+            </summary>
+        </member>
+        <member name="P:Tyrant.Server.Net.TcpConnectHP.LocalPort">
+            <summary>
+            获取当前连接的本地端口号
+            </summary>
+        </member>
+        <member name="P:Tyrant.Server.Net.TcpConnectHP.LocalIp">
+            <summary>
+            获取当前连接的本地IP地址
+            </summary>
+        </member>
+        <member name="P:Tyrant.Server.Net.TcpServerHP.ListenPort">
+            <summary>
+            获取监听的本地端口号
+            </summary>
+        </member>
+        <member name="P:Tyrant.Server.Net.TcpServerHP.ListenIp">
+            <summary>
+            获取监听的本地IP地址
+            </summary>
+        </member>
+        <member name="M:Tyrant.Server.Net.TcpServerHP.SetKeepAlive(System.UInt32,System.UInt32)">
+            <summary>
+            设置Tcp保持连接参数
+            </summary>
+            <param name="time">经过此时间连接双方一直没有互相发送任何数据包则发送保持活动的数据包，单位毫秒。默认值为30000</param>
+            <param name="internal">在未收到确认时发送连续保持活动数据包之间的间隔，单位毫秒。默认值为5000</param>
+        </member>
+        <member name="P:Tyrant.Server.Network.Net.RefreshPropertyPageData.ItemsCount">
+            <summary>
+            请求刷新的数量
+            </summary>
+        </member>
+        <member name="P:Tyrant.Server.Network.Net.RefreshPropertyPageData.Page">
+            <summary>
+            从下标0开始
+            </summary>
+        </member>
+        <member name="T:Tyrant.Server.TcpClient">
+            <summary>
+            基于HPSocket实现的Tcp客户端
+            </summary>
+        </member>
+        <member name="P:Tyrant.Server.TcpClient.LocalPort">
+            <summary>
+            获取当前连接的本地端口号
+            </summary>
+        </member>
+        <member name="P:Tyrant.Server.TcpClient.LocalIp">
+            <summary>
+            获取当前连接的本地IP地址
+            </summary>
+        </member>
+        <member name="T:Tyrant.Server.AccountDataAssist">
+            <summary>
+            基础结构，不应直接使用
+            </summary>
+        </member>
+        <member name="T:Tyrant.Server.AccountDataAssist`4">
+            <summary>
+            继承此类以实现账号扩展, 此类所有方法都不保证线程安全
+            </summary>
+            <typeparam name="TAccountData">账号数据类型，<see cref="T:Tyrant.GameCore.Data.AccountData"/>的子类型</typeparam>
+            <typeparam name="TRegistAccountExtraParameter">注册时创建账号的扩展数据类型，<see cref="T:Tyrant.GameCore.Net.RegistAccountParamExtra"/>的子类型</typeparam>
+            <typeparam name="TLoginAccountExtraParameter">登录且自动注册时创建账号的扩展数据类型</typeparam>
+            <typeparam name="TDbContext">扩展数据库上下文，<see cref="T:Tyrant.Server.AccountDataAssist`4.AccountDbContext"/>的子类型</typeparam>
+        </member>
+        <member name="P:Tyrant.Server.AccountDataAssist`4.HasMultyDbContextWithThread">
+            <summary>
+            是否使用每个线程对应一个DbContext实例
+            </summary>
+        </member>
+        <member name="M:Tyrant.Server.AccountDataAssist`4.OnGetReturnDataWhenCheckLoginConnection(System.UInt64,System.Boolean)">
+            <summary>
+            登录验证通过且建立长连接后验证登录标记时将自定义数据返回给客户端，默认返回null
+            </summary>
+            <param name="accountId">账号Id</param>
+            <param name="enterLoginServerGroup">true表示进入的是登录服务器组，false反之</param>
+            <returns>返回给客户端的自定义数据</returns>
+        </member>
+        <!-- Badly formed XML comment ignored for member "M:Tyrant.Server.AccountDataAssist`4.OnGetTransactionIsolationLevelWhenRegist(System.String,Tyrant.Server.AccountDataAssist{`0,`1,`2,`3}.RegistContext)" -->
+        <member name="M:Tyrant.Server.AccountDataAssist`4.OnCheckNameWhenRegistAccount(System.String@,Tyrant.Server.AccountDataAssist{`0,`1,`2,`3}.RegistContext)">
+            <summary>
+            注册账号时检查账号名称是否符合自定义要求，亦可更改账号Id和账号名称，默认返回true
+            </summary>
+            <param name="accountName">要检查的账号名称</param>
+            <param name="registContext">注册上下文</param>
+            <returns>true表示符合要求，false反之并将错误码<see cref="F:Tyrant.GameCore.Net.RPCError.NameFormatError"/>返回至客户端</returns>
+        </member>
+        <member name="M:Tyrant.Server.AccountDataAssist`4.OnCheckRegistArg(System.String,Tyrant.Server.AccountDataAssist{`0,`1,`2,`3}.RegistContext)">
+            <summary>
+            检查注册参数是否合法。继承者重写此方法以检查自定义参数的合法性
+            </summary>
+            <param name="accountName">要检查的账号名称</param>
+            <param name="registContext">注册上下文</param>
+            <returns>检查结果，<see cref="F:Tyrant.GameCore.Net.RPCError.OK"/>表示合法，其他表示不合法</returns>
+        </member>
+        <member name="M:Tyrant.Server.AccountDataAssist`4.OnCreateAccountWhenRegist(System.String,Tyrant.Server.AccountDataAssist{`0,`1,`2,`3}.RegistContext)">
+            <summary>
+            注册时创建账号。
+            </summary>
+            <param name="accountName">账号名称</param>
+            <param name="registContext">注册上下文</param>
+            <returns>账号实例</returns>
+        </member>
+        <member name="M:Tyrant.Server.AccountDataAssist`4.OnHandleCustomErrorWhenSaveToDatabase(System.Exception,Tyrant.GameCore.Net.RPCError@,Tyrant.Server.AccountDataAssist{`0,`1,`2,`3}.RegistContext)">
+            <summary>
+            保存到数据库异常时被调用。继承者可从异常分析出是否为自定义的错误
+            </summary>
+            <param name="exception">异常</param>
+            <param name="rpcError">自定义的错误</param>
+            <param name="registContext">注册上下文</param>
+            <returns>true表示为自定义的错误，false表示抛出异常</returns>
+        </member>
+        <member name="M:Tyrant.Server.AccountDataAssist`4.OnBeforeNewAccountCommitToDatabase(Tyrant.Server.AccountDataAssist{`0,`1,`2,`3}.RegistContext)">
+            <summary>
+            新建的账号在执行插入后且提交至数据库之前被调用，若对数据库有更改，不要忘记调用<c>registContext.DbContext.SaveChanges()</c>
+            </summary>
+            <param name="registContext">注册上下文</param>
+        </member>
+        <member name="M:Tyrant.Server.AccountDataAssist`4.OnAfterNewAccountCommitToDatabase(Tyrant.Server.AccountDataAssist{`0,`1,`2,`3}.RegistContext)">
+            <summary>
+            新建的账号在提交至数据库之后被调用
+            </summary>
+            <param name="registContext">注册上下文</param>
+        </member>
+        <!-- Badly formed XML comment ignored for member "M:Tyrant.Server.AccountDataAssist`4.OnGetTransactionIsolationLevelWhenLogin(Tyrant.Server.AccountDataAssist{`0,`1,`2,`3}.LoginContext)" -->
+        <member name="M:Tyrant.Server.AccountDataAssist`4.OnCheckLoginArg(Tyrant.Server.AccountDataAssist{`0,`1,`2,`3}.LoginContext)">
+            <summary>
+            登录时检查登录参数。默认返回<see cref="F:Tyrant.GameCore.Net.RPCError.OK"/>
+            </summary>
+            <param name="loginContext">登录上下文</param>
+            <returns>检查结果，<see cref="F:Tyrant.GameCore.Net.RPCError.OK"/>表示合法，其他表示不合法</returns>
+        </member>
+        <member name="M:Tyrant.Server.AccountDataAssist`4.OnGetIsAutoRegist(Tyrant.Server.AccountDataAssist{`0,`1,`2,`3}.LoginContext)">
+            <summary>
+            根据账号名称和额外登录参数获取是否自动注册账号，默认返回false
+            </summary>
+            <param name="loginContext">登录上下文</param>
+            <returns>true表示自动注册账号，false反之</returns>
+        </member>
+        <member name="M:Tyrant.Server.AccountDataAssist`4.OnDetermineAccountDataExpressionWhenLogin(Tyrant.Server.AccountDataAssist{`0,`1,`2,`3}.LoginContext)">
+            <summary>
+            根据登录上下文获取从数据库中确定账号数据的表达式
+            </summary>
+            <param name="loginContext">登录上下文</param>
+            <returns>一个表达式</returns>
+        </member>
+        <member name="M:Tyrant.Server.AccountDataAssist`4.GetAccountDataOnLoginWithoutConfiguring(Tyrant.Server.AccountDataAssist{`0,`1,`2,`3}.LoginContext)">
+            <summary>
+            获取账号数据库在非数据库下
+            </summary>
+            <param name="loginContext"></param>
+            <returns>返回空时，调用<see cref="M:Tyrant.Server.AccountDataAssist`4.OnGetIsAutoRegist(Tyrant.Server.AccountDataAssist{`0,`1,`2,`3}.LoginContext)"/>判断是否走自动注册，否则登录失败，存在重复账号Id登录时会产生顶号逻辑。</returns>
+        </member>
+        <member name="M:Tyrant.Server.AccountDataAssist`4.OnTransformLoginParameterToRegistParam(Tyrant.Server.AccountDataAssist{`0,`1,`2,`3}.LoginContext)">
+            <summary>
+            当<see cref="M:Tyrant.Server.AccountDataAssist`4.OnGetIsAutoRegist(Tyrant.Server.AccountDataAssist{`0,`1,`2,`3}.LoginContext)"/>返回true时被调用，用于将登录参数转换为账号名称和注册参数。
+            </summary>
+            <param name="loginContext">登录上下文</param>
+            <returns>账号名称和注册参数的值元组</returns>
+        </member>
+        <member name="M:Tyrant.Server.AccountDataAssist`4.OnVerifyAccount(Tyrant.Server.AccountDataAssist{`0,`1,`2,`3}.LoginContext)">
+            <returns>验证结果，<see cref="F:Tyrant.GameCore.Net.RPCError.OK"/>表示验证成功，其他表示验证失败</returns>
+        </member>
+        <member name="P:Tyrant.Server.AccountDataAssist`4.LoginOrRegistContext.DbContext">
+            <summary>
+            获取获取扩展后的数据库上下文
+            </summary>
+        </member>
+        <member name="P:Tyrant.Server.AccountDataAssist`4.LoginOrRegistContext.AccountQuery">
+            <summary>
+            账号表的只读查询
+            </summary>
+        </member>
+        <member name="P:Tyrant.Server.AccountDataAssist`4.LoginOrRegistContext.HttpRequestInfomation">
+            <summary>
+            Http请求信息
+            </summary>
+        </member>
+        <member name="P:Tyrant.Server.AccountDataAssist`4.LoginOrRegistContext.Tag">
+            <summary>
+            使用者自定义的标签
+            </summary>
+        </member>
+        <member name="P:Tyrant.Server.AccountDataAssist`4.RegistContext.AccountData">
+            <summary>
+            获取账号数据
+            </summary>
+        </member>
+        <member name="P:Tyrant.Server.AccountDataAssist`4.RegistContext.RegistParam">
+            <summary>
+            获取注册参数
+            </summary>
+        </member>
+        <member name="P:Tyrant.Server.AccountDataAssist`4.LoginContext.LoginParam">
+            <summary>
+            获取登录参数
+            </summary>
+        </member>
+        <member name="T:Tyrant.Server.AccountDataAssist`4.AccountDbContext">
+            <summary>
+            账号数据库上下文，支持自动迁移。若继承此类重写<see cref="M:Tyrant.Server.TyrantDbContext.OnConfiguring(Microsoft.EntityFrameworkCore.DbContextOptionsBuilder)"/>或<see cref="M:Tyrant.Server.AccountDataAssist`4.AccountDbContext.OnModelCreating(Microsoft.EntityFrameworkCore.ModelBuilder)"/>一定不要忘记调用基类同名方法
+            </summary>
+        </member>
+        <member name="P:Tyrant.Server.AccountDataAssist`4.AccountDbContext.AccountQuery">
+            <summary>
+            账号表的只读查询
+            </summary>
+        </member>
+        <member name="M:Tyrant.Server.AccountBasedServer.CreateAccountDataAssist">
+            <summary>
+            当创建账号模块时被调用
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="T:Tyrant.Server.DistributedLocker">
+            <summary>
+            表示分布式锁。属性<see cref="P:Tyrant.Server.DistributedLocker.Name"/>的值为锁的唯一标识。可在不同的进程上安全的操作相同的资源
+            </summary>
+        </member>
+        <member name="P:Tyrant.Server.DistributedLocker.Name">
+            <summary>
+            获取该锁的名称
+            </summary>
+        </member>
+        <member name="M:Tyrant.Server.DistributedLocker.ApplyDistributedLocker(System.String,System.UInt32)">
+            <summary>
+            申请获取指定名称的分布式锁的所有权
+            </summary>
+            <param name="lockerName">指定的名称</param>
+            <param name="expireMilliseconds">过期时间，单位：毫秒。过期后将会解锁</param>
+            <returns>锁实例任务。异步等待获得锁的实例标识获取到该锁的所有权</returns>
+            <exception cref="T:System.NotSupportedException">不支持在Master进程使用分布式锁</exception>
+        </member>
+        <member name="M:Tyrant.Server.DistributedLocker.ApplyDistributedLocker(System.String,System.TimeSpan)">
+            <summary>
+            申请获取指定名称的分布式锁的所有权
+            </summary>
+            <param name="lockerName">指定的名称</param>
+            <param name="expireTime">过期时间间隔。过期后将会解锁</param>
+            <returns>锁实例任务。异步等待获得锁的实例标识获取到该锁的所有权</returns>
+            <exception cref="T:System.NotSupportedException">不支持在Master进程使用分布式锁</exception>
+        </member>
+        <member name="M:Tyrant.Server.DistributedLocker.Release">
+            <summary>
+            释放该锁
+            </summary>
+            <returns></returns>
+            <exception cref="T:System.NotSupportedException">不支持在Master进程使用分布式锁</exception>
+        </member>
+        <member name="M:Tyrant.Server.RPCParameterExtention.GetHttpRequestInfomation(Tyrant.GameCore.Net.RPCParameter)">
+            <summary>
+            获取Http消息的请求信息。
+            </summary>
+            <param name="rPCParameter"></param>
+            <returns></returns>
+        </member>
+        <member name="P:Tyrant.Server.ServerPropertyBase.UserCount">
+            <summary>
+            用户数量
+            </summary>
+        </member>
+        <member name="M:Tyrant.Server.Snowflake.GetTimestamp">
+            <summary>
+            生成当前时间戳
+            </summary>
+            <returns>毫秒</returns>
+        </member>
+        <member name="M:Tyrant.Server.Snowflake.GetNextTimestamp(System.Int64)">
+            <summary>
+            获取下一微秒时间戳
+            </summary>
+            <param name="lastTimestamp"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Tyrant.Server.Snowflake.GetId">
+            <summary>
+            获取长整型的ID
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:Tyrant.Server.GateServerBase.OnClientDisConnected(System.UInt16,System.UInt64,Tyrant.GameCore.Net.NetConnection,System.Exception)">
+            <summary>
+            当客户端断开连接时被调用
+            </summary>
+            <param name="clientId">客户端Id</param>
+            <param name="accountId">账号Id</param>
+            <param name="toHallConnection">hallserver的链接</param>
+            <param name="e">连接断开时发生的异常，</param>
+        </member>
+        <member name="M:Tyrant.Server.GateServerBase.DisconnectClient(System.UInt16)">
+            <summary>
+            断开与客户端的连接
+            </summary>
+            <param name="routeSlot">客户端Id</param>
+        </member>
+        <member name="M:Tyrant.Server.GateServerBase.OnLoginConnection(System.UInt64)">
+            <summary>
+            登录验证成功
+            </summary>
+            <param name="accountId">用户id</param>
+        </member>
+        <member name="M:Tyrant.Server.GateServerBase.OnEnterServerGroup(System.UInt64)">
+            <summary>
+            进入游戏服务器组成功
+            </summary>
+            <param name="accountId"></param>
+        </member>
+        <member name="M:Tyrant.Server.GateServerBase.Reconnect(System.UInt16,System.Guid,System.Guid,System.UInt64)">
+            <summary>
+            重连
+            </summary>
+            <param name="playerSlot">Gate进程内的连接Id</param>
+            <param name="hallConnectId">与hallserver进程的连接Id</param>
+            <param name="mapId">地图唯一标识</param>
+            <param name="roleId">角色Id</param>
+            <returns>重连成功返回true，否则返回false</returns>
+        </member>
+        <member name="M:Tyrant.Server.HallServerBase.OnGetIsSingleRole">
+            <summary>
+            获取是否为单角色。默认值为false
+            </summary>
+            <returns>true表示单角色，false表示多角色</returns>
+        </member>
+        <member name="P:Tyrant.Server.HallServerBase.MyRoleDataAssist">
+            <summary>
+            获取方法<see cref="M:Tyrant.Server.HallServerBase.OnCreatePlayerDataAssist"/>返回的对象
+            </summary>
+        </member>
+        <member name="M:Tyrant.Server.HallServerBase.OnCreatePlayerDataAssist">
+            <summary>
+            创建角色数据扩展协助对象，继承者重写此方法时应返回从类<see cref="T:Tyrant.Server.PlayerDataAssist`4"/>继承来的子类的实例化对象
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="P:Tyrant.Server.HallServerBase.SingleRole">
+            <summary>
+            获取或设置是否只允许一个角色。True表示一个账号只有一个角色且自动创建。False表示一个账号可以有多个角色且需要手动创建。默认值为False。
+            </summary>
+        </member>
+        <!-- Badly formed XML comment ignored for member "M:Tyrant.Server.HallServerBase.OnCreateRoleIdWhenSingleRole(System.UInt64,Tyrant.GameCore.Net.RPCMapParamExtra)" -->
+        <member name="M:Tyrant.Server.HallServerBase.OnCheckCanEnterMap(System.UInt64,System.UInt64,Tyrant.GameCore.Net.RPCMapParamExtra)">
+            <summary>
+            检查指定角色Id的角色能否进入地图，并返回一个自定义数据对象用于在World进程查找地图信息
+            </summary>
+            <param name="accountId"></param>
+            <param name="RoleId"></param>
+            <param name="ExParamData"></param>
+            <returns></returns>
+        </member>
+        <!-- Badly formed XML comment ignored for member "M:Tyrant.Server.HallServerBase.OnCheckCanReEnterMap(Tyrant.Server.MapBase,Tyrant.Server.PlayerBase)" -->
+        <member name="P:Tyrant.Server.MapBase.MapData">
+            <summary>
+            地图数据
+            </summary>
+        </member>
+        <member name="M:Tyrant.Server.MapBase.OnInitMap">
+            <summary>
+            初始化地图。在本实例所在的地图线程上调用
+            </summary>
+        </member>
+        <member name="M:Tyrant.Server.MapBase.OnGetSyncTimerInterval">
+            <summary>
+            获取<see cref="T:Tyrant.Server.MapBase"/>的更新间隔时间，默认值不开启计时器同步更新
+            </summary>
+            <returns>更新间隔时间</returns>
+        </member>
+        <member name="M:Tyrant.Server.MapBase.CreateTimer(System.TimeSpan,System.TimeSpan,System.Func{Tyrant.Server.Timer,System.Boolean},System.Object)">
+            <summary>
+            创建一个定时器
+            </summary>
+            <param name="dueTime">首次触发间隔时间</param>
+            <param name="interval">后续触发间隔时间</param>
+            <param name="ticker">触发事件，异常会导致继续触发事件</param>
+            <param name="tag">事件参数</param>
+        </member>
+        <member name="M:Tyrant.Server.MapBase.CreateInvokeOnceTimer(System.TimeSpan,System.Action{Tyrant.Server.Timer},System.Object)">
+            <summary>
+            创建一个一次性定时器
+            </summary>
+            <param name="dueTime">触发间隔时间</param>
+            <param name="invokeAction">触发事件</param>
+            <param name="tag">事件参数</param>
+        </member>
+        <member name="M:Tyrant.Server.MapBase.ComparerUnit(System.Collections.Generic.IEnumerable{Tyrant.Server.SyncUnit},System.Collections.Generic.IEnumerable{Tyrant.Server.SyncUnit},System.Collections.Generic.List{Tyrant.Server.SyncUnit})">
+            <summary>
+            从参数一中筛选出差异于参数二的SyncUnit数组
+            </summary>
+            <param name="units1"></param>
+            <param name="units2"></param>
+            <param name="sameUnits">重叠数组</param>
+            <returns>差异数组</returns>
+        </member>
+        <!-- Badly formed XML comment ignored for member "M:Tyrant.Server.MapBase.DoSyncUnits" -->
+        <member name="M:Tyrant.Server.MapBase.DoSyncUnitsImmediate">
+            <summary>
+            立即同步所有同步单元。
+            </summary>
+        </member>
+        <member name="M:Tyrant.Server.MapBase.Destroy">
+            <summary>
+            地图销毁
+            </summary>
+        </member>
+        <member name="T:Tyrant.Server.SyncUnit">
+            <summary>
+            同步单元
+            </summary>
+        </member>
+        <member name="M:Tyrant.Server.SyncUnit.SetNotifySyncUnits(System.Collections.Generic.List{Tyrant.Server.SyncUnit})">
+            <summary>
+            设置收集广播的单元组
+            </summary>
+            <param name="syncUnits">需要广播的单元组</param>
+        </member>
+        <member name="M:Tyrant.Server.SyncUnit.SetNotifySyncUnit(Tyrant.Server.SyncUnit)">
+            <summary>
+            设置收集广播的单元
+            </summary>
+            <param name="syncUnit">需要广播的单元</param>
+        </member>
+        <member name="T:Tyrant.Server.RoleActor">
+            <summary>
+            被拥有和拥有的子
+            </summary>
+        </member>
+        <member name="M:Tyrant.Server.RoleActor.CreateTimer(System.TimeSpan,System.TimeSpan,System.Func{Tyrant.Server.Timer,System.Boolean},System.Object)">
+            <summary>
+            创建一个定时器
+            </summary>
+            <param name="dueTime">首次触发间隔时间</param>
+            <param name="interval">后续触发间隔时间</param>
+            <param name="ticker">触发事件</param>
+            <param name="tag">事件参数</param>
+        </member>
+        <member name="M:Tyrant.Server.RoleActor.CreateInvokeOnceTimer(System.TimeSpan,System.Action{Tyrant.Server.Timer},System.Object)">
+            <summary>
+            创建一个一次性定时器
+            </summary>
+            <param name="dueTime">触发间隔时间</param>
+            <param name="invokeAction">触发事件</param>
+            <param name="tag">事件参数</param>
+        </member>
+        <member name="M:Tyrant.Server.RoleActor.CreateActorSyncData">
+            <summary>
+            重载创建Role自动属性
+            </summary>
+            <returns></returns>
+        </member>
+        <!-- Badly formed XML comment ignored for member "M:Tyrant.Server.RoleActor.OnGetFormPool" -->
+        <member name="M:Tyrant.Server.RoleActor.OnGiveBackToPool">
+            <summary>
+            离开地图后归还对象池ObjectPool后的释放函数
+            </summary>
+        </member>
+        <member name="M:Tyrant.Server.RoleActor.EnterMap(Tyrant.Server.MapBase)">
+            <summary>
+            进入地图调用接口
+            </summary>
+            <param name="map"></param>
+        </member>
+        <member name="M:Tyrant.Server.RoleActor.OnInternalEnterMap(Tyrant.Server.MapBase)">
+            <summary>
+            进入地图,派生类实现该接口.
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:Tyrant.Server.RoleActor.OnEnterMap">
+            <summary>
+            在该角色进入地图之后被调用，属性<see cref="P:Tyrant.Server.RoleActor.HostMap"/>表示已进入的地图。
+            </summary>
+        </member>
+        <member name="M:Tyrant.Server.RoleActor.LeaveMap">
+            <summary>
+            角色离开地图调用接口
+            </summary>
+        </member>
+        <member name="P:Tyrant.Server.RoleActor.Unit">
+            <summary>
+            获取当前单元
+            </summary>
+        </member>
+        <member name="M:Tyrant.Server.RoleActor.ChangeToSyncUnit(Tyrant.Server.SyncUnit)">
+            <summary>
+            跨单元
+            </summary>
+            <param name="unitChangeTo">要切换到的单元</param>
+        </member>
+        <member name="T:Tyrant.Server.PlayerDataAssist">
+            <summary>
+            基础结构，不应直接使用
+            </summary>
+        </member>
+        <member name="T:Tyrant.Server.PlayerDataAssist`4">
+            <summary>
+            继承此类以实现角色扩展数据
+            </summary>
+            <typeparam name="TPlayerData">角色数据类型</typeparam>
+            <typeparam name="TCreatePlayerExtraParameter">创建角色数据类型</typeparam>
+            <typeparam name="TGetRoleReturnParam">获取角色时返回给客户端的类型</typeparam>
+            <typeparam name="TDbContext">数据库上下文类型</typeparam>
+        </member>
+        <member name="P:Tyrant.Server.PlayerDataAssist`4.HasMultyDbContextWithThread">
+            <summary>
+            是否使用每个线程对应一个DbContext实例
+            </summary>
+        </member>
+        <member name="M:Tyrant.Server.PlayerDataAssist`4.OnCreateRoleData(System.UInt64,System.UInt64,System.String,`1)">
+            <summary>
+            创建TPlayerData实例，此方法执行过后会将返回值元祖的第一个成员所表示的角色数据的<see cref="P:Tyrant.GameCore.Data.RoleDataBase.Id"/>与<see cref="P:Tyrant.GameCore.Data.PlayerData.AccountId"/>这两个属性赋值为正确的值
+            </summary>
+            <param name="accountId">账号Id</param>
+            <param name="playerId">框架生成的角色Id</param>
+            <param name="roleName">角色名称</param>
+            <param name="obj"></param>
+            <returns>包含角色数据和返回给客户端数据的元组</returns>
+        </member>
+        <member name="M:Tyrant.Server.PlayerDataAssist`4.OnGetRoleDatas(Tyrant.Server.PlayerDataAssist{`0,`1,`2,`3}.DataContext)">
+            <summary>
+            返回数据库的表达式
+            </summary>
+            <param name="playerDataContext"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Tyrant.Server.PlayerDataAssist`4.OnGetRoleDatasWithoutDatabase(Tyrant.Server.PlayerDataAssist{`0,`1,`2,`3}.DataContext)">
+            <summary>
+            非数据库下返回角色
+            </summary>
+            <param name="playerDataContext"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Tyrant.Server.PlayerDataAssist`4.OnHandleCustomErrorWhenSaveToDatabase(System.Exception,Tyrant.GameCore.Net.RPCError@,Tyrant.Server.PlayerDataAssist{`0,`1,`2,`3}.DataContext)">
+            <summary>
+            保存到数据库异常时被调用。继承者可从异常分析出是否为自定义的错误
+            </summary>
+            <param name="exception">异常</param>
+            <param name="rpcError">自定义的错误</param>
+            <param name="dataContext">数据上下文</param>
+            <returns>true表示为自定义的错误，false表示抛出异常</returns>
+        </member>
+        <member name="M:Tyrant.Server.PlayerDataAssist`4.OnBeforeCommitToDatabase(Tyrant.Server.PlayerDataAssist{`0,`1,`2,`3}.DataContext)">
+            <summary>
+            新建的账号在执行插入后且提交至数据库之前被调用
+            </summary>
+            <param name="registContext">注册上下文</param>
+            <returns>true表示需要更新账号数据，false反之</returns>
+        </member>
+        <member name="P:Tyrant.Server.PlayerDataAssist`4.DataContext.Tag">
+            <summary>
+            使用者自定义的标签
+            </summary>
+        </member>
+        <member name="M:Tyrant.Server.PlayerBase.OnRouteCompleted">
+            <summary>
+            路由完整建立时被调用。此时意味着客户端可向Hall进程发送玩家级别的RPC
+            </summary>
+        </member>
+        <member name="M:Tyrant.Server.PlayerBase.ResetRouter(System.Guid,System.UInt16,Tyrant.GameCore.Net.NetConnection)">
+            <summary>
+            重置Router的连接数据
+            </summary>
+            <param name="gateServerId"></param>
+            <param name="gateSlot"></param>
+            <param name="netConnection"></param>
+        </member>
+        <member name="M:Tyrant.Server.PlayerBase.AgainEnterSyncUnit">
+            <summary>
+            重新进入单元格
+            </summary>
+        </member>
+        <member name="M:Tyrant.Server.PlayerBase.CallToConcurrentHall``1(Tyrant.GameCore.Net.RPCAuxParameter{``0})">
+            <summary>
+            
+            </summary>
+            <typeparam name="K"></typeparam>
+            <param name="rpcParamter"></param>
+        </member>
+        <member name="M:Tyrant.Server.PlayerBase.CallToConcurrentHall``2(Tyrant.GameCore.Net.RPCAuxParameterReturn{``0,``1})">
+            <summary>
+            
+            </summary>
+            <typeparam name="K"></typeparam>
+            <typeparam name="R"></typeparam>
+            <param name="rpcParamter"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Tyrant.Server.PlayerBase.C2H_LeaveMap(Tyrant.GameCore.Net.C2H_LeaveMapParam)">
+            <summary>
+            可使用Client(实例).LeaveMap、Client(实例).LeaveMapAsync函数调用
+            </summary>
+            <param name="arg"></param>
+        </member>
+        <member name="P:Tyrant.Server.PlayerBase.IsReconnected">
+            <summary>
+            获取该角色是不是断线后重新连接。
+            </summary>
+        </member>
+        <member name="M:Tyrant.Server.PlayerBase.OnReady">
+            <summary>
+            玩家准备完毕时调用，玩家应在此后进入同步单元
+            </summary>
+        </member>
+        <member name="T:Tyrant.Server.HttpListener">
+            <summary>
+            监听发送到本机的Http请求。Windows平台需要管理员权限
+            </summary>
+        </member>
+        <member name="E:Tyrant.Server.HttpListener.UnknownInterfaceReceived">
+            <summary>
+            接收到未知接口时触发此事件
+            </summary>
+        </member>
+        <member name="M:Tyrant.Server.HttpListener.#ctor(System.String,System.UInt16,System.Boolean)">
+            <summary>
+            初始化新实例
+            </summary>
+            <param name="pathPrefix">路径前缀。只会监听路径以此开头的Http请求</param>
+            <param name="port">监听的端口，默认值为80</param>
+            <param name="security">true表示安全连接。默认值为false</param>
+        </member>
+        <member name="P:Tyrant.Server.HttpListener.ListenedAddress">
+            <summary>
+            获取监听地址
+            </summary>
+        </member>
+        <!-- Badly formed XML comment ignored for member "M:Tyrant.Server.HttpListener.AddCallback(System.String,System.Func{System.Net.HttpListenerContext,System.Byte[]})" -->
+        <!-- Badly formed XML comment ignored for member "M:Tyrant.Server.HttpListener.AddCallback(System.String,System.Func{System.Net.HttpListenerContext,System.Threading.Tasks.Task{System.Byte[]}})" -->
+        <member name="M:Tyrant.Server.HttpListener.Start">
+            <summary>
+            启动此监听器
+            </summary>
+            <returns>调用实例</returns>
+        </member>
+        <member name="M:Tyrant.Server.Server.HttpServerListener.#ctor(System.String,System.UInt16,System.Boolean)">
+            <summary>
+            初始化新实例
+            </summary>
+            <param name="prefix">路径前缀。只会监听路径以此开头的Http请求</param>
+            <param name="port">监听的端口，默认值为80</param>
+            <param name="security">true表示安全连接。默认值为false，为true时得调用<see cref="M:Tyrant.Server.Server.HttpServerListener.InitializeForSSL(System.Boolean,HPSocket.Ssl.SslVerifyMode,System.String,System.String,System.String,System.String)"/>函数</param>
+        </member>
+        <member name="M:Tyrant.Server.Server.HttpServerListener.InitializeForSSL(System.Boolean,HPSocket.Ssl.SslVerifyMode,System.String,System.String,System.String,System.String)">
+            <summary>
+            初始化ssl环境，<see cref="M:Tyrant.Server.Server.HttpServerListener.#ctor(System.String,System.UInt16,System.Boolean)"/>第三个参数安全连接为true时，调用有效
+            </summary>
+            <param name="memory">是否从内存加载证书，如果为false，[pemCert,pemKey,caPemCertFileOrPath]这些属性应该是文件路径;如果为true，[pemCert,pemKey,caPemCertFileOrPath]这些属性应该是证书文件的内容，而不是文件路径</param>
+            <param name="sslVerifyMode">验证模式</param>
+            <param name="pemCert">证书文件</param>
+            <param name="pemKey">私钥文件</param>
+            <param name="keyPassword">私钥密码（没有密码则为空）</param>
+            <param name="caPemCertFileOrPath">CA 证书文件或目录</param>
+        </member>
+        <member name="M:Tyrant.Server.Server.HttpServerListener.UnInitializeForSSL">
+            <summary>
+            卸载ssl环境
+            </summary>
+        </member>
+        <member name="P:Tyrant.Server.HttpServer.RegistOrLogninAccountNameLockerExpireTimeSpan">
+            <summary>
+            获取或设置注册账号或登录时锁定名称的分布式锁的过期时间
+            </summary>
+        </member>
+        <member name="M:Tyrant.Server.HttpServer.OnGetServerGroupsData">
+            <summary>
+            继承者可重写此方法获取服务器组数据。默认实现为向Master进程获取。
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:Tyrant.Server.MasterServerBase.OnCreateGateServerInfo">
+            <summary>
+            当需要创建表示Gate类型的服务器进程信息对象时调用此方法
+            </summary>
+            <returns>Gate类型的服务器进程信</returns>
+        </member>
+        <member name="M:Tyrant.Server.MasterServerBase.OnCreateHttpServerInfo">
+            <summary>
+            当需要创建表示Http类型的服务器进程信息对象时调用此方法
+            </summary>
+            <returns>Gate类型的服务器进程信</returns>
+        </member>
+        <member name="M:Tyrant.Server.MasterServerBase.OnCreateNonGateOrNonHttpServerInfo(System.Boolean,Tyrant.GameCore.Net.ERouteTarget)">
+            <summary>
+            当需要创建表示非Gate类型或非Http类型的服务器进程信息对象时调用此方法
+            </summary>
+            <param name="positive">是否主动连接</param>
+            <param name="serverType">服务器类型</param>
+            <returns></returns>
+        </member>
+        <member name="M:Tyrant.Server.MasterServerBase.GetClientGate">
+            <summary>
+            获取连接数最小的Gate并增加其压力
+            </summary>
+            <returns>连接数最小的Gate</returns>
+        </member>
+        <member name="M:Tyrant.Server.MasterServerBase.OnGetServerGroupDatas">
+            <summary>
+            获取服务器列表时被调用。返回值的项可继承自<see cref="T:Tyrant.GameCore.Data.ServerGroupData"/>以扩展自定义信息
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:Tyrant.Server.MasterServerBase.ReGetServerGroupDatas">
+            <summary>
+            重新获取服务器组列表
+            </summary>
+        </member>
+        <member name="M:Tyrant.Server.MasterServerBase.OnGetServerGroupMinCountRequested">
+            <summary>
+            获取要求服务器组启动完成的最小数量。默认要求至少有一组服务器启动完毕。若返回的数值超过服务器组总数量则表示要求所有服务器组启动完毕。
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="P:Tyrant.Server.GateOnMasterServerInfo.ClientConnectionCount">
+            <summary>
+            在Master进程上记录的Gate进程的客户端连接数
+            </summary>
+        </member>
+        <member name="P:Tyrant.Server.HttpOnMasterServerInfo.RequestHandlingCount">
+            <summary>
+            在Master进程上记录的Http进程的正在处理的请求的数量
+            </summary>
+        </member>
+        <member name="T:Tyrant.Server.ServerConfig">
+            <summary>
+            服务器的配置项
+            </summary>
+        </member>
+        <member name="P:Tyrant.Server.ServerConfig.Attribute">
+            <summary>
+            服务器属性。默认值为<see cref="F:Tyrant.Server.ServerAttribute.None"/>
+            </summary>
+        </member>
+        <member name="P:Tyrant.Server.ServerConfig.Flags">
+            <summary>
+            服务器标志。默认值为<see cref="F:Tyrant.Server.ServerFlags.None"/>
+            </summary>
+        </member>
+        <member name="T:Tyrant.Server.ServerConfig.AllConfig">
+            <summary>
+            所有服务器类型都需要的配置项
+            </summary>
+        </member>
+        <member name="P:Tyrant.Server.ServerConfig.AllConfig.ProjectName">
+            <summary>
+            项目名称。此值相同的进程被视为同一个项目的进程。
+            </summary>
+        </member>
+        <member name="P:Tyrant.Server.ServerConfig.AllConfig.ServerGroupName">
+            <summary>
+            服务器进程组名称。此值相同的进程被视为同一个服务器进程组。
+            </summary>
+        </member>
+        <member name="P:Tyrant.Server.ServerConfig.AllConfig.MonitorIP">
+            <summary>
+            监视器的内网IP。默认值为127.0.0.1
+            </summary>
+        </member>
+        <member name="P:Tyrant.Server.ServerConfig.AllConfig.MonitorPort">
+            <summary>
+            监视器的内网端口。默认值为8498
+            </summary>
+        </member>
+        <member name="P:Tyrant.Server.ServerConfig.AllConfig.EnableDatabaseAutoMigration">
+            <summary>
+            是否启用数据库自动迁移。默认值为true
+            </summary>
+        </member>
+        <member name="P:Tyrant.Server.ServerConfig.AllConfig.PerformanceKey">
+            <summary>
+            性能统计配置Key。若此值为空引用或空白或在性能配置文件中找不到此值对应的配置，则开启全部性能统计
+            </summary>
+        </member>
+        <member name="P:Tyrant.Server.ServerConfig.ExceptMasterConfig.ListenStartPort">
+            <summary>
+            除Master以外的服务器进程以此端口开始监听，如果失败加1再次尝试监听
+            </summary>
+        </member>
+        <member name="P:Tyrant.Server.ServerConfig.MasterOrGateConfig.LoginToFinishConnectionExpireTime">
+            <summary>
+            从登录到建立长连接再到身份验证过程的过期时间。超时则断开已建立的长连接，登录失败。单位：毫秒。指定0或<see cref="P:Tyrant.GameCore.Net.RPCExecManager.IsDebug"/>为true则禁用此功能。默认值为5000
+            </summary>
+        </member>
+        <member name="P:Tyrant.Server.ServerConfig.MasterConfig.MasterForClientIp">
+            <summary>
+            Master进程为客户端连接使用的Ip，要保证客户端能连接到这个IP，只有Master进程需要此值
+            </summary>
+        </member>
+        <member name="P:Tyrant.Server.ServerConfig.MasterConfig.MasterForClientPort">
+            <summary>
+            Master进程为客户端连接监听此端口，要保证客户端能访问这个端口, 只有Master进程需要此值
+            </summary>
+        </member>
+        <member name="P:Tyrant.Server.ServerConfig.DbBasedConfig.DbConfig">
+            <summary>
+            数据库配置
+            </summary>
+        </member>
+        <member name="P:Tyrant.Server.ServerConfig.DbBasedConfig.DbConfigKey">
+            <summary>
+            空引用或空白表示不启用该数据库配置
+            </summary>
+        </member>
+        <member name="P:Tyrant.Server.ServerConfig.GateConfig.GateForClientIp">
+            <summary>
+            Gate进程为客户端连接使用的IP，要保证客户端能连接到这个IP，只有Gate进程需要此值。默认值为"127.0.0.1"
+            </summary>
+        </member>
+        <member name="P:Tyrant.Server.ServerConfig.GateConfig.GateForClientPort">
+            <summary>
+            Gate进程为客户端连接监听此端口，客户端要能连接到这个端口，只有Gate进程需要此值
+            </summary>
+        </member>
+        <member name="P:Tyrant.Server.ServerConfig.LogConfig.MaxLogLengthOfDataTable">
+            <summary>
+            数据表最大日志数
+            </summary>
+        </member>
+        <member name="T:Tyrant.Server.DbConfig">
+            <summary>
+            数据库配置项
+            </summary>
+        </member>
+        <member name="P:Tyrant.Server.DbConfig.Host">
+            <summary>
+            数据库Url
+            </summary>
+        </member>
+        <member name="P:Tyrant.Server.DbConfig.Port">
+            <summary>
+            数据库端口
+            </summary>
+        </member>
+        <member name="P:Tyrant.Server.DbConfig.DbName">
+            <summary>
+            数据库名称
+            </summary>
+        </member>
+        <member name="P:Tyrant.Server.DbConfig.UserForBusiness">
+            <summary>
+            用于业务逻辑的连接用户名
+            </summary>
+        </member>
+        <member name="P:Tyrant.Server.DbConfig.PasswordForBusiness">
+            <summary>
+            用于业务逻辑的连接密码
+            </summary>
+        </member>
+        <member name="P:Tyrant.Server.DbConfig.UserForMigration">
+            <summary>
+            用于迁移的连接用户名
+            </summary>
+        </member>
+        <member name="P:Tyrant.Server.DbConfig.PasswordForMigration">
+            <summary>
+            用于迁移的连接密码
+            </summary>
+        </member>
+        <member name="T:Tyrant.Server.ServerAttribute">
+            <summary>
+            服务器属性
+            </summary>
+        </member>
+        <member name="F:Tyrant.Server.ServerAttribute.None">
+            <summary>
+            无属性
+            </summary>
+        </member>
+        <member name="F:Tyrant.Server.ServerAttribute.BelongToLoginServerGroup">
+            <summary>
+            指示该进程所属的进程组是否为登录服务器进程组。
+            </summary>
+        </member>
+        <member name="F:Tyrant.Server.ServerAttribute.ConcurrentHall">
+            <summary>
+            指示Hall进程是否承载并发RPC请求，此属性不影响其他类型的服务器进程。
+            </summary>
+        </member>
+        <member name="T:Tyrant.Server.ServerFlags">
+            <summary>
+            服务器标志，各标志可组合
+            </summary>
+        </member>
+        <member name="T:Tyrant.Server.HallServerInfoManager">
+            <summary>
+            WorldServer上的对HallServer的管理器，用于在账号进入地图时选择地图
+            </summary>
+        </member>
+        <member name="M:Tyrant.Server.HallServerInfoManager.FindOrCreateMapInfo(System.Func{Tyrant.Server.MapInfo,System.Boolean},System.Action{Tyrant.Server.MapInfo})">
+            <summary>
+            查找或在压力最小的HallServer上创建地图信息
+            </summary>
+            <param name="filter">查找筛选条件</param>
+            <param name="needLock">true表示加锁，可保证线程安全。false反之</param>
+            <param name="OnCreateNewMapInfo">如果是刚创建的新实例,则会调用该事件</param>
+            <returns>符合查找筛选条件的实例，找不到则创建一个新实例</returns>
+        </member>
+        <member name="M:Tyrant.Server.HallServerInfoManager.GetMapInfoWithId(System.Guid)">
+            <summary>
+            获取指定id的MapInfo实例
+            </summary>
+            <param name="id"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Tyrant.Server.HallServerInfoManager.FindOrCreateMapInfoWithId(System.Guid,System.Boolean@)">
+            <summary>
+            获取或创建指定id的MapInfo实例
+            </summary>
+            <param name="id">指定的id</param>
+            <param name="isCreateNew">返回值是否刚创建的新实例</param>
+            <returns>具有指定id的实例</returns>
+        </member>
+        <member name="M:Tyrant.Server.HallServerInfoManager.CreateOnMinPressureInstance">
+            <summary>
+            在压力最小的HallServer上创建新实例
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="P:Tyrant.Server.HallOnWorldServerInfo.PlayersMumPower">
+            <summary>
+            获取或设置玩家数量的方法系数。用于统计HallServer的压力。默认值为20
+            </summary>
+        </member>
+        <member name="P:Tyrant.Server.HallOnWorldServerInfo.AllMapPlayerNums">
+            <summary>
+            获取HallServer玩家总数量
+            </summary>
+        </member>
+        <member name="P:Tyrant.Server.HallOnWorldServerInfo.AllMapNpcNums">
+            <summary>
+            获取HallServer的NPC总数量
+            </summary>
+        </member>
+        <member name="P:Tyrant.Server.HallOnWorldServerInfo.Invalid">
+            <summary>
+            是否失效，true为失效，false反之。默认值为false
+            </summary>
+        </member>
+        <member name="P:Tyrant.Server.HallOnWorldServerInfo.Pressure">
+            <summary>
+            获取HallServerInfo压力值
+            </summary>
+        </member>
+        <member name="T:Tyrant.Server.MapInfo">
+            <summary>
+            表示HallServer进程承载的地图信息，主要用于在账号进入地图时选择地图
+            </summary>
+        </member>
+        <member name="P:Tyrant.Server.MapInfo.PlayerNums">
+            <summary>
+            获取玩家的数量
+            </summary>
+        </member>
+        <member name="P:Tyrant.Server.MapInfo.NpcNums">
+            <summary>
+            获取NPC的数量
+            </summary>
+        </member>
+        <member name="M:Tyrant.Server.MapInfo.OnCreateInstaceOnHallServerFinished">
+            <summary>
+            在Hall Server创建地图实例完成后被调用
+            </summary>
+        </member>
+        <member name="M:Tyrant.Server.MapInfo.OnCreateMapData(Tyrant.Server.HallServerInfoManager@)">
+            <summary>
+            在创建地图实例时被调用，返回的地图数据将传入Hall Server
+            </summary>
+            <param name="hallServerInfoManager"></param>
+            <returns></returns>
+        </member>
+        <member name="P:Tyrant.Server.ServerInfo.IsPositive">
+            <summary>
+            是否主动连接方
+            </summary>
+        </member>
+        <member name="P:Tyrant.Server.ServerInfo.ConnectPendingDataLength">
+            <summary>
+            获取连接通道中阻塞的数据长度，以字节为单位
+            </summary>
+        </member>
+        <member name="T:Tyrant.Server.TimerCreator">
+            <summary>
+            计时器
+            </summary>
+        </member>
+        <member name="M:Tyrant.Server.TimerCreator.CreateTimer(System.TimeSpan,System.TimeSpan,System.Func{Tyrant.Server.Timer,System.Boolean},System.Object)">
+            <summary>
+            
+            </summary>
+            <param name="dueTime"></param>
+            <param name="interval"></param>
+            <param name="ticker"></param>
+            <param name="tag"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Tyrant.Server.TimerCreator.CreateInvokeOnceTimer(System.TimeSpan,System.Action{Tyrant.Server.Timer},System.Object)">
+            <summary>
+            
+            </summary>
+            <param name="dueTime"></param>
+            <param name="invokeAction"></param>
+            <param name="tag"></param>
+            <returns></returns>
+        </member>
+        <member name="F:Tyrant.Server.Timer.Ticked">
+            <summary>
+            返回false 结束tick
+            </summary>
+        </member>
+        <member name="P:Tyrant.Server.UserChannel`1.UserToGateConnectionsNoRepeat">
+            <summary>
+            获取组内所有用户对Gate的不重复的连接对象的迭代器
+            </summary>
+        </member>
+        <member name="M:Tyrant.Server.UserChannel`1.S2C_CallChannelAll(Tyrant.GameCore.Net.RPCParameter)">
+            <summary>
+            将指定RPC参数广播给该频道内的所有用户
+            </summary>
+            <param name="arg"></param>
+        </member>
+        <member name="P:Tyrant.Server.AccountBase.Connection2Gate">
+            <summary>
+            本进程到此账号所分配的Gate进程的连接
+            </summary>
+        </member>
+        <member name="P:Tyrant.Server.AccountBase.Connection2Hall">
+            <summary>
+            本进程到此账号角色所分配的Hall进程的连接
+            </summary>
+        </member>
+        <member name="P:Tyrant.Server.AccountBase.ServerGuid2Gate">
+            <summary>
+            获取此账号所分配的Gate进程的Guid
+            </summary>
+        </member>
+        <member name="P:Tyrant.Server.AccountBase.GateSlot">
+            <summary>
+            获取此账号所分配的Gate进程的Id
+            </summary>
+        </member>
+        <member name="P:Tyrant.Server.AccountBase.ToGateDescribion">
+            <summary>
+            获取到Gate进程的连接描述
+            </summary>
+        </member>
+        <member name="P:Tyrant.Server.AccountBase.Router">
+            <summary>
+            用于在非Gate服务器进程给Client发送远程调用
+            </summary>
+        </member>
+        <member name="P:Tyrant.Server.AccountBase.EnableKeepConnect">
+            <summary>
+            断线是否保持连接，默认值为false
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:Tyrant.Server.AccountBase.S2C_Call``1(Tyrant.GameCore.Net.RPCAuxParameter{``0})">
+            <summary>
+            将指定RPC发送到客户端
+            </summary>
+            <typeparam name="K">RPC参数类型</typeparam>
+            <param name="arg">RPC参数实例</param>
+        </member>
+        <member name="M:Tyrant.Server.AccountBase.S2H_CallAsync``2(Tyrant.GameCore.Net.RPCAuxParameterReturn{``0,``1})">
+            <summary>
+            将指定RPC异步发送到HallServer
+            </summary>
+            <typeparam name="K">RPC类型</typeparam>
+            <typeparam name="R">返回值类型</typeparam>
+            <param name="arg">RPC实例</param>
+            <returns></returns>
+        </member>
+        <member name="M:Tyrant.Server.AccountBase.S2G_Call``2(Tyrant.GameCore.Net.RPCAuxParameterReturn{``0,``1})">
+            <summary>
+            将指定RPC异步发送到GateServer
+            </summary>
+            <typeparam name="K">RPC类型</typeparam>
+            <typeparam name="R">返回值类型</typeparam>
+            <param name="arg">RPC实例</param>
+            <returns></returns>
+        </member>
+        <member name="P:Tyrant.Server.AccountBase.CurrentInMapRoleId">
+            <summary>
+            当前进入地图的角色
+            </summary>
+        </member>
+        <member name="M:Tyrant.Server.AccountBase.EnterMapAsync(System.UInt64,Tyrant.GameCore.Net.RPCMapParamExtra)">
+            <summary>
+            异步进入地图
+            </summary>
+            <param name="enterMapRoleId">要进入地图的角色的Id</param>
+            <param name="exParamData">额外的地图参数</param>
+            <param name="exitIfInMap">如果该角色正在某个地图中，true为离开该地图，false为立即返回</param>
+            <returns>结果</returns>
+        </member>
+        <member name="T:Tyrant.Server.LeaveReason">
+            <summary>
+            离开（服务器，房间，地图等）原因
+            </summary>
+        </member>
+        <member name="F:Tyrant.Server.LeaveReason.Disconnected">
+            <summary>
+            连接断开
+            </summary>
+        </member>
+        <member name="F:Tyrant.Server.LeaveReason.UserOperation">
+            <summary>
+            用户主动操作
+            </summary>
+        </member>
+        <member name="F:Tyrant.Server.LeaveReason.Passive">
+            <summary>
+            被动离开（被其他用户踢出，计时器触发等）
+            </summary>
+        </member>
+        <member name="M:Tyrant.Server.WorldServerBase.OnCreateHallServerInfo">
+            <summary>
+            当需要创建表示Hall类型的服务器进程信息对象时调用此方法
+            </summary>
+            <returns>Gate类型的服务器进程信</returns>
+        </member>
+        <member name="M:Tyrant.Server.WorldServerBase.OnCreateNonHallServerInfo(System.Boolean,Tyrant.GameCore.Net.ERouteTarget)">
+            <summary>
+            当需要创建表示非Hall类型的服务器进程信息对象时调用此方法
+            </summary>
+            <param name="positive">是否主动连接</param>
+            <param name="serverType">服务器类型</param>
+            <returns></returns>
+        </member>
+        <member name="M:Tyrant.Server.WorldServerBase.OnCreateMapInfo(Tyrant.Server.HallServerInfoManager@,Tyrant.Server.HallOnWorldServerInfo)">
+            <summary>
+            当进入地图且要创建新地图实例时被调用
+            </summary>
+            <param name="hallServerInfoManager"></param>
+            <param name="info">Hall在World上的</param>
+            <returns></returns>
+        </member>
+        <member name="M:Tyrant.Server.WorldServerBase.OnGetMapInHallServerToEnter(Tyrant.Server.HallServerInfoManager@)">
+            <summary>
+            选择hall进程服务器进入。默认逻辑为选择最小压力的实例。
+            </summary>
+            <param name="serverInfoManager">HallServer信息管理器</param>
+            <returns></returns>
+        </member>
+        <member name="M:Tyrant.Server.WorldServerBase.G2W_LogoutAccount(Tyrant.Server.Net.G2W_LogoutAccountParam)">
+            <summary>
+            Gate断线调过来的
+            </summary>
+            <param name="arg"></param>
+        </member>
+        <member name="M:Tyrant.Server.WorldServerBase.Reconnect(Tyrant.Server.AccountBase,Tyrant.GameCore.Net.NetConnection,System.UInt64,Tyrant.Server.MapInfo)">
+            <summary>
+            重连
+            </summary>
+            <param name="hallConnection">到hallserver的连接</param>
+            <param name="roleId">角色Id</param>
+            <param name="mapInfo">MapInfo</param>
+        </member>
+        <member name="T:Tyrant.Server.JsonExtention.HierarchicalJsonConverter">
+            <summary>
+            层次化的Json转换器，不展开集合和复杂类型属性的值
+            </summary>
+        </member>
+        <member name="M:Tyrant.GameCore.Net.ServerNetExtention.DoReturn``2(Tyrant.GameCore.Net.RPCAuxParameterReturn{``0,``1})">
+            <summary>
+            使用默认返回值将此RPC返回给调用方
+            </summary>
+        </member>
+        <member name="M:Tyrant.GameCore.Net.ServerNetExtention.DoReturn``2(Tyrant.GameCore.Net.RPCAuxParameterReturn{``0,``1},``1)">
+            <summary>
+            使用指定的返回值对象将此RPC返回给调用方
+            </summary>
+        </member>
+        <member name="M:Tyrant.GameCore.Net.ServerNetExtention.S2S_CallAsync``2(Tyrant.GameCore.Net.RPCAuxParameterReturn{``0,``1},Tyrant.GameCore.Net.ERouteTarget)">
+            <summary>
+            异步在当前服务器进程上将此RPC调用到目标服务器进程
+            </summary>
+            <param name="rpcParamter">RPC实例</param>
+            <param name="target">目标服务器进程类型</param>
+            <param name="isConcurrent">是否并发执行此实例，默认值为false</param>
+            <returns>带有此RPC的返回值的任务</returns>
+        </member>
+        <member name="M:Tyrant.GameCore.Net.ServerNetExtention.S2S_Call``1(Tyrant.GameCore.Net.RPCAuxParameter{``0},Tyrant.GameCore.Net.ERouteTarget)">
+            <summary>
+            在当前服务器进程上将此RPC调用到目标服务器进程
+            </summary>
+            <param name="parameter">RPC实例</param>
+            <param name="target">目标服务器进程类型</param>
+            <param name="isConcurrent">是否并发</param>
+        </member>
+        <member name="M:Tyrant.GameCore.Net.ServerNetExtention.S2S_Call``2(Tyrant.GameCore.Net.RPCAuxParameterReturn{``0,``1},Tyrant.GameCore.Net.ERouteTarget,Tyrant.GameCore.Net.RPCParameter.FRPCTypeReturnCallBack{``1})">
+            <summary>
+            在当前服务器进程上将此RPC调用到目标服务器进程
+            </summary>
+            <param name="parameter">RPC实例</param>
+            <param name="target">目标服务器进程类型</param>
+            <param name="cb">返回值回调，在逻辑线程上触发</param>
+        </member>
+    </members>
+</doc>
